@@ -1,68 +1,79 @@
-//Sensor de temperatura usando o LM35
-#include <Wire.h> //INCLUSÃO DE BIBLIOTECA
-#include <Adafruit_GFX.h> //INCLUSÃO DE BIBLIOTECA
-#include <Adafruit_SSD1306.h> //INCLUSÃO DE BIBLIOTECA
-Adafruit_SSD1306 display = Adafruit_SSD1306(); //OBJETO DO TIPO Adafruit_SSD1306
-int buttonState = 0;
-int buttonState2 = 0;
-const int LM35 = A2; // Define o pino que lera a saída do LM35
-float temperatura; // Variável que armazenará a temperatura medida
-int setTemp = 0;
-int Aument = 13;
-int Dimin = 10;
-int estadorele = 8;
-//Função que será executada uma vez quando ligar ou resetar o Arduino
+#include <Wire.h> 
+#include <Adafruit_GFX.h> 
+#include <Adafruit_SSD1306.h> 
+Adafruit_SSD1306 display = Adafruit_SSD1306(); 
+
+const int LM35 = A2; 
+float temperatura;
+int setTemp = 0, Aument = 13, Dimin = 10, estadorele = 8, buttonState = 0;
+
 void setup() {
 pinMode(Aument, INPUT_PULLUP);
 pinMode(estadorele, OUTPUT);
 pinMode(Dimin, INPUT_PULLUP);  
-Serial.begin(9600); // inicializa a comunicação serial
-Wire.begin(); //INICIALIZA A BIBLIOTECA WIRE
-display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //INICIALIZA O DISPLAY COM ENDEREÇO I2C 0x3C
-display.setTextColor(WHITE); //DEFINE A COR DO TEXTO
-display.setTextSize(3); //DEFINE O TAMANHO DA FONTE DO TEXTO
-display.clearDisplay(); //LIMPA AS INFORMAÇÕES DO DISPLAY
+Serial.begin(9600); 
+Wire.begin(); 
+display.clearDisplay(); 
+display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
+display.setTextColor(WHITE); 
+display.setTextSize(3); 
 }
- 
-//Função que será executada continuamente
-void loop() {
-temperatura = (((analogRead(LM35)*5.0)/1023)/0.01);
-Serial.print("Temperatura: ");
-Serial.println(temperatura);
+// Função para mostrar a tela
+void mostraTela(){
+  Serial.println(setTemp);
+  display.setCursor(10,10);
+  display.print(setTemp); // mostra na tela a temperatura que o usuario escolheu
+  display.setTextSize(1); 
+  display.print("  O ");
+  display.setTextSize(3); 
+  display.print("C");
+  display.display(); // faz a escrita no display
+  display.clearDisplay();
+}
+// Função para setar a temperatura
+void SetarTemp(){
+  // Para aumentar a temperatura
+  buttonState = digitalRead(Aument);
+  if(buttonState == LOW){
+  setTemp++;
+  Serial.println("a");
+  }
+  // Para diminuir a temperatura
+  buttonState = digitalRead(Dimin);
+  if(buttonState == LOW){
+  setTemp--;
+  Serial.println("b");
+  }
+
+}
+// Função para impor limite na temperatura e verificar se pode ou não ligar a P.P.
+void condRele(){
+  // Verificar se o rele pode ou não ligar
   if (temperatura >setTemp + 2){
     digitalWrite(estadorele,LOW);
   }
   if(temperatura < setTemp - 2){
     digitalWrite(estadorele,HIGH);
   }
+  // Limites de temperatura
   if(setTemp > 50){
   setTemp = 20;}
   
   if(setTemp < -10){
-  setTemp = -10;}
-
-  buttonState = digitalRead(Aument);
-
-  if(buttonState == LOW){
-  setTemp++;
-  Serial.println("a");
+  setTemp = -10;
   }
-
-  buttonState2 = digitalRead(Dimin);
-  if(buttonState2 == LOW){
-  setTemp--;
-  Serial.println("b");
 }
 
-  Serial.println(setTemp);
-  display.setCursor(10,10); //POSIÇÃO EM QUE O CURSOR IRÁ FAZER A ESCRITA
-  display.print(setTemp); //ESCREVE O TEXTO NO DISPLAY
-  display.setTextSize(1); //DEFINE O TAMANHO DA FONTE DO TEXTO
-  display.print("  O ");
-  display.setTextSize(3); //DEFINE O TAMANHO DA FONTE DO TEXTO
-  display.print("C");
-  display.display(); //EFETIVA A ESCRITA NO DISPLAY
-  display.clearDisplay();
+
+void loop() {
+temperatura = (((analogRead(LM35)*5.0)/1023)/0.01);
+Serial.print("Temperatura: "); 
+Serial.println(temperatura);
+
+  condRele();
+
+  SetarTemp();
   
+  mostraTela();
   
 }
