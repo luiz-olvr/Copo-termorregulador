@@ -5,7 +5,7 @@ Adafruit_SSD1306 display = Adafruit_SSD1306();
 
 const int LM35 = A2; 
 float temperatura;
-int setTemp = 0, Aument = 13, Dimin = 10, estadorele = 8, buttonState = 0;
+int setTemp = 0, Aument = 13, Dimin = 10, estadorele = 8, buttonState = 0, ganho = 4, pot = 0;
 
 void setup() {
 pinMode(Aument, INPUT_PULLUP);
@@ -47,6 +47,19 @@ void SetarTemp(){
 
 }
 // Função para impor limite na temperatura e verificar se pode ou não ligar a P.P.
+
+
+void ligaResis(){
+
+  pot = (setTemp - temperatura) * ganho;
+  digitalWrite(estadorele, pot);
+
+}
+
+
+
+
+
 void condRele(){
   // Verificar se o rele pode ou não ligar
   if (temperatura >setTemp + 2){
@@ -70,8 +83,8 @@ temperatura = (((analogRead(LM35)*5.0)/1023)/0.01);
 Serial.print("Temperatura: "); 
 Serial.println(temperatura);
 
-  condRele();
-
+  //condRele();
+  ligaResis();
   SetarTemp();
   
   mostraTela();
