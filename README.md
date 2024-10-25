@@ -22,41 +22,34 @@
         </tr>
         <tr>
             <td>2</td>
-            <td>Placa peltier 40x40mm</td>
+            <td>4 Resistores de ceramica 49x12x12</td>
             <td>2</td>
-            <td>R$ 12,40</td>
-            <td>R$ 28,80</td>
+            <td>R$ 2,50</td>
+            <td>R$ 12,50</td>
         </tr>
         <tr>
             <td>3</td>
-            <td>Bateria de lítio 3,7V</td>
-            <td>2</td>
-            <td>R$ xx,xx</td>
-            <td>R$ xx,xx</td>
-        </tr>
-        <tr>
-            <td>4</td>
             <td>Sensor de temperatura LM35</td>
             <td>1</td>
             <td>R$ 1,72</td>
             <td>R$ 1,72</td>
         </tr>
         <tr>
-            <td>5</td>
-            <td>Relé de estado sólido HY-M285</td>
+            <td>4</td>
+            <td>TIP 122 </td>
             <td>1</td>
-            <td>R$ 14,90</td>
-            <td>R$ 14,90</td>
+            <td>R$ 2,49</td>
+            <td>R$ 2,49</td>
         </tr>
         <tr>
-            <td>6</td>
+            <td>5</td>
             <td>Display oled 128x64</td>
             <td>1</td>
             <td>R$ 42,00</td>
             <td>R$ 42,00</td>
         </tr>
         <tr>
-            <td>7</td>
+            <td>6</td>
             <td>Pasta térmica</td>
             <td>1</td>
             <td>R$ 9,48</td>
