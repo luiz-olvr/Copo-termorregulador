@@ -5,7 +5,7 @@ Adafruit_SSD1306 display = Adafruit_SSD1306();
 
 const int LM35 = A2;
 float temperatura;
-int setTemp = 0, Aument = 13, Dimin = 10, estadorele = 8, buttonState = 0, ganho = 5, pot = 0, media =0;
+int setTemp = 0, Aument = 13, Dimin = 10, saturacao = 8, buttonState = 0, ganho = 5, pot = 0, media =0;
 
 void setup() {
 pinMode(Aument, INPUT_PULLUP);
@@ -57,21 +57,21 @@ Serial.print("Potencia calculo: ");
 Serial.println(pot);
 
 if(pot >= 255){
-analogWrite(estadorele, 255);
+analogWrite(saturacao, 255);
 Serial.print("Potencia no led: ");
 Serial.println('255');
 
 }
 
 if(pot > 0 && pot < 255){
-analogWrite(estadorele, pot);
-Serial.print("Potencia no led: ");
+analogWrite(saturacao, pot);
+Serial.print("Potencia no resistor: ");
 Serial.println(pot);
 }
 
 if(pot <=0){
-analogWrite(estadorele, pot);
-Serial.print("Potencia no led: ");
+analogWrite(saturacao, 0);
+Serial.print("Potencia no resistor: ");
 Serial.println('0');
 }
 
@@ -82,11 +82,11 @@ Serial.println('0');
 
 void loop() {
 media =0
-for(int c =0; c<=20; c++){
-media = media + (((analogRead(LM35)*5.0)/1023)/0.01);
+for(int c =0; c<=50; c++){
+media += (((analogRead(LM35)*5.0)/1023)/0.01);
 
 }
-temperatura = media/20;
+temperatura = media/50;
 Serial.print("Temperatura: ");
 Serial.println(temperatura);
 
