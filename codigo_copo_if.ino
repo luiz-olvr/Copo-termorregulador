@@ -6,6 +6,10 @@ Adafruit_SSD1306 display = Adafruit_SSD1306();
 const int LM35 = A2;
 float temperatura;
 int setTemp = 0, Aument = 13, Dimin = 10, saturacao = 8, buttonState = 0, ganho = 5, pot = 0, media = 0;
+int StAtual, ProximoSt;
+
+#define StAquecer 0
+#define StAnalisar 1
 
 void setup() {
   pinMode(Aument, INPUT_PULLUP);
@@ -20,6 +24,15 @@ void setup() {
 }
 // Função para mostrar a tela
 void mostraTela() {
+  if( StAtual == StAnalisar){
+  display.setCursor(10, 10);
+  display.print(temperatura);
+  display.setTextSize(1);
+  display.print(" O ");
+  display.setTextSize(3);
+  display.print("C");  
+
+  }
   Serial.print("Valor na tela: ");
   Serial.println(setTemp);
   display.setCursor(10, 10);
@@ -44,6 +57,12 @@ void SetarTemp() {
   if (buttonState == LOW) {
     setTemp--;
     Serial.println("botao de diminuir apertado");
+  }
+
+  if( digitalRead(Aument) == LOW && digitalRead(Dimin) == LOW){
+    while (digitalRead(Aument) == LOW && digitalRead(Dimin) == LOW);
+    ProximoSt = !ProximoSt;
+
   }
 }
 // Função para impor limite na temperatura e verificar se pode ou não ligar os resistores
@@ -74,17 +93,30 @@ void ligaResis() {
   }
 }
 
-
 void loop() {
-  media = 0;
-  for (int c = 0; c <= 50; c++) {
-    media += (((analogRead(LM35) * 5.0) / 1023) / 0.01);
-  }
-  temperatura = media / 50;
+  if( StAtual == StAquecer){
+
   Serial.print("Temperatura: ");
   Serial.println(temperatura);
 
   ligaResis();
   SetarTemp();
   mostraTela();
+
+  }
+    media = 0;
+  for (int c = 0; c <= 50; c++) {
+    media += (((analogRead(LM35) * 5.0) / 1023) / 0.01);
+  }
+  temperatura = media / 50;
+
+  if( StAtual == StAnalisar){
+  mostraTela(); 
+  SetarTemp();
+  }
+
+  Serial.print("Proximo estado: ");
+  Serial.println(ProximoSt);
+  delay(1200);
+  StAtual = ProximoSt;
 }
