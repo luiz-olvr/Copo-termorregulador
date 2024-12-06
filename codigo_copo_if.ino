@@ -4,12 +4,12 @@
 #include <EEPROM.h>
 Adafruit_SSD1306 display = Adafruit_SSD1306();
 
-const int LM35 = A2;
+const int LM35 = A0;
 float temperatura;
-int setTemp = 0, Aument = 13, Dimin = 10, saturacao = 8, buttonState = 0, ganho = 5, pot = 0, media = 0;
+int setTemp = 0, Aument = 6, Dimin = 3, saturacao = 9, buttonState = 0, ganho = 5, pot = 0, media = 0;
 int StAtual, ProximoSt;
 
-EEPROM.get(0, temperatura);  // lê a ultima temperatura da memoria
+//Estados
 #define StAquecer 0
 #define StAnalisar 1
 
@@ -23,52 +23,61 @@ void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.setTextColor(WHITE);
   display.setTextSize(3);
+   // Recupera o último valor de setTemp da EEPROM
+  EEPROM.get(0, setTemp);
+  Serial.print("Temperatura inicial restaurada da EEPROM: ");
+  Serial.println(setTemp);
 }
+
 // Função para mostrar a tela
 void mostraTela() {
-  if (StAtual == StAnalisar) {
-    display.setCursor(10, 10);
-    display.print(temperatura);
-    display.setTextSize(1);
-    display.print(" O ");
-    display.setTextSize(3);
-    display.print("C");
-    display.clearDisplay();
-  }
-
-  Serial.print("Valor na tela: ");
-  Serial.println(setTemp);
+  display.clearDisplay(); // Limpa antes de exibir
   display.setCursor(10, 10);
-  display.print(setTemp);  // mostra na tela a temperatura que o usuario escolheu
+  if (StAtual == StAnalisar) {
+    display.print(temperatura);
+  } else if (StAtual == StAquecer) {
+    display.print(setTemp);
+  }
   display.setTextSize(1);
   display.print(" O ");
   display.setTextSize(3);
   display.print("C");
-  display.display();  // faz a escrita no display
-  display.clearDisplay();
+  display.display();
 }
+  
 // Função para setar a temperatura
 void SetarTemp() {
+  bool mudou = false;
 
   // Para aumentar a temperatura
   buttonState = digitalRead(Aument);
   if (buttonState == LOW) {
     setTemp++;
+    mudou = true;
     Serial.println("botao de aumentar apertado");
   }
   // Para diminuir a temperatura
   buttonState = digitalRead(Dimin);
   if (buttonState == LOW) {
     setTemp--;
+    mudou = true;
     Serial.println("botao de diminuir apertado");
   }
 
+  // Salva na EEPROM apenas se a temperatura foi alterada
+  if (mudou) {
+    EEPROM.put(0, setTemp);
+    Serial.print("Temperatura salva na EEPROM: ");
+    Serial.println(setTemp);
+  }
+
+  // Troca de estado se ambos os botões forem pressionados
   if (digitalRead(Aument) == LOW && digitalRead(Dimin) == LOW) {
     while (digitalRead(Aument) == LOW && digitalRead(Dimin) == LOW)
       ;
     ProximoSt = !ProximoSt;
   }
-  EEPROM.put(0, valor);  // salva na memoria eprom
+
 }
 // Função para impor limite na temperatura e verificar se pode ou não ligar os resistores
 
@@ -107,18 +116,36 @@ void loop() {
     ligaResis();
     SetarTemp();
     mostraTela();
-  }
-  media = 0;
+    media = 0;
   for (int c = 0; c <= 50; c++) {
     media += (((analogRead(LM35) * 5.0) / 1023) / 0.01);
+    
   }
-  temperatura = media / 50;
+  temperatura = media / 51;
+  Serial.print("Temperatura: ");
+    Serial.println(temperatura);
+  }
+  
+ 
+    
+  
 
   if (StAtual == StAnalisar) {
     mostraTela();
     SetarTemp();
+    media = 0;
+  for (int c = 0; c <= 50; c++) {
+    media += (((analogRead(LM35) * 5.0) / 1023) / 0.01);
+    
+  }
+  temperatura = media / 51;
+  Serial.print("Temperatura: ");
+  Serial.println(temperatura);
+
   }
   Serial.println(ProximoSt);
+  delay(1000);
 
   StAtual = ProximoSt;
 }
+
